@@ -6,7 +6,7 @@ const commentSchema = new Schema({
         trim: true,
     },
     email: {
-        types: String,
+        type: String,
         required: true,
         lowercase: true,
     },
@@ -28,7 +28,7 @@ const blogSchema = new Schema({
         trim: true,
     },
     content: {
-        tyoe: String,
+        type: String,
         required: true,
     },
     excerpt: {

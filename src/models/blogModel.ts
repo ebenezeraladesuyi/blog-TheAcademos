@@ -32,7 +32,7 @@ const commentSchema = new Schema<IComment> (
             trim: true,
         },
         email: {
-            types: String,
+            type: String,
             required: true,
             lowercase: true,
         },
@@ -58,7 +58,7 @@ const blogSchema = new Schema<IBlog>(
             trim: true,
         },
         content: {
-            tyoe: String,
+            type: String,
             required: true,
         },
         excerpt: {
