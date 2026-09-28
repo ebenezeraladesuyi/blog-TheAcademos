@@ -7,7 +7,6 @@ const commentSchema = new Schema({
     },
     email: {
         type: String,
-        required: true,
         lowercase: true,
     },
     text: {

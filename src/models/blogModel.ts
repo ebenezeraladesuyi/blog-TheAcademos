@@ -33,7 +33,6 @@ const commentSchema = new Schema<IComment> (
         },
         email: {
             type: String,
-            required: true,
             lowercase: true,
         },
         text: {
