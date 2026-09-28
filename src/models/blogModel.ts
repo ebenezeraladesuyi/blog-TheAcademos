@@ -78,7 +78,7 @@ const blogSchema = new Schema<IBlog>(
         author: {
             type: Schema.Types.ObjectId,
             required: true,
-            ref: "User"
+            ref: "blogAdmin"
         },
         likes: [{
             type: String,

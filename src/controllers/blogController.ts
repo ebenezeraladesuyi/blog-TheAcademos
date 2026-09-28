@@ -12,11 +12,12 @@ const hashIp = (ip: string): string =>
 
 // helper get IP
 const getIp = (req: AuthRequest) => {
-    const forwarded = req.headers["x-forwarded- for"];
-    const ip = (Array.isArray(forwarded) ? forwarded[0] : forwarded?.split(",")[0])
-    req.socket.remoteAddress || req.ip || "unknown";
+    const forwarded = req.headers["x-forwarded-for"];
+    const ip = (Array.isArray(forwarded) ? forwarded[0] : forwarded?.split(",")[0]) ?? req.socket.remoteAddress ?? req.ip ?? "unknown"
+    // req.socket.remoteAddress || req.ip || "unknown";
 
-    return hashIp(ip!.trim());
+    // return hashIp(ip!.trim());
+    return hashIp(ip.trim());
 }
 
 
@@ -42,6 +43,7 @@ export const getAllBlogs = async (req: AuthRequest, res: Response): Promise<void
             success: false,
             message: "server error", error
         })
+        console.log("error", error)
     }
 }
 
@@ -81,10 +83,121 @@ export const getBlogById = async (req: AuthRequest, res: Response): Promise<void
      res.status(500).json({
         success: false,
         message: "server error", error
-     })   
+     })
+     console.log("error", error)   
     }
 }
 
+//  Like a blog (+1)
+export const likeBlog = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const { id } = req.params;
+
+        const blog = await blogModel.findById(id);
+
+        if (!blog) {
+            res.status(404).json({
+                success: false,
+                message: "blog not found",
+            });
+            return;
+        }
+
+        blog.likeCount = (blog.likeCount || 0) + 1;
+        await blog.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Liked",
+            data: { likeCount: blog.likeCount },
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "server error",
+            error,
+        });
+    }
+};
+
+// Unlike a blog (-1, never below 0)
+export const unlikeBlog = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const { id } = req.params;
+
+        const blog = await blogModel.findById(id);
+
+        if (!blog) {
+            res.status(404).json({
+                success: false,
+                message: "blog not found",
+            });
+            return;
+        }
+
+        blog.likeCount = Math.max(0, (blog.likeCount || 0) - 1);
+        await blog.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Unliked",
+            data: { likeCount: blog.likeCount },
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "server error",
+            error,
+        });
+    }
+};
+
+// toggle like and unlike 
+export const likeAndUnlikeBlog = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const { id } = req.params;
+        const { action } = req.body; // "like" | "unlike"
+
+        if (action !== "like" && action !== "unlike") {
+            res.status(400).json({
+                success: false,
+                message: "action must be 'like' or 'unlike'",
+            });
+            return;
+        }
+
+        const blog = await blogModel.findById(id);
+
+        if (!blog) {
+            res.status(404).json({
+                success: false,
+                message: "blog not found",
+            });
+            return;
+        }
+
+        if (action === "like") {
+            blog.likeCount = (blog.likeCount || 0) + 1;
+        } else {
+            // "unlike" — never go below 0
+            blog.likeCount = Math.max(0, (blog.likeCount || 0) - 1);
+        }
+
+        await blog.save();
+
+        res.status(200).json({
+            success: true,
+            message: action === "like" ? "Liked" : "Unliked",
+            data: { likeCount: blog.likeCount },
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "server error",
+            error,
+        });
+    }
+};
 
 // toggle like
 export const toggleLike = async (req: AuthRequest, res: Response): Promise<void> => {
