@@ -419,7 +419,7 @@ export const deleteComment = async (req: AuthRequest, res: Response): Promise<vo
     try {
         const { id, commentId } = req.params;
 
-        const blog = await blogModel.findById();
+        const blog = await blogModel.findById(id);
 
         if (!blog) {
             res.status(404).json({

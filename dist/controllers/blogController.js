@@ -348,7 +348,7 @@ export const deleteBlog = async (req, res) => {
 export const deleteComment = async (req, res) => {
     try {
         const { id, commentId } = req.params;
-        const blog = await blogModel.findById();
+        const blog = await blogModel.findById(id);
         if (!blog) {
             res.status(404).json({
                 success: false,
